@@ -97,14 +97,12 @@ button:disabled{opacity:.7;
 .tip{color:#94a3b8;font-size:12px;
  text-align:center;margin-top:20px;
  line-height:1.6}
-</style>
+::placeholder{color:#b8c2d1;opacity:1}</style>
 </head>
 <body>
 
 <h3>重庆桥隧限行智能出行顾问</h3>
-<label>车牌</label>
-<input id="plate" value="渝A12346">
-<label>车型</label>
+<label>车牌</label><input id="plate" value="" placeholder="如:渝A123456"><label>车型</label>
 <select id="vt"></select>
 <label>日期</label><input type="date" id="dt"><label>星期（自动）</label>
 <select id="wd" disabled></select>
@@ -117,7 +115,7 @@ button:disabled{opacity:.7;
 <input type="hidden" id="th" value="7">
 <input type="hidden" id="tm" value="30"><div id="cd" style="margin-top:8px;font-size:13px;color:#64748b"></div>
 <label>桥隧</label>
-<input id="rs" value="黄花园大桥" autocomplete="off"><div id="sug" style="display:none;margin-top:8px;line-height:1"></div><div id="rec" style="display:none;margin-top:10px;line-height:1"></div><datalist id="brl"></datalist>
+<input id="rs" value="" placeholder="如:黄花园大桥" autocomplete="off"><div id="sug" style="display:none;margin-top:8px;line-height:1"></div><div id="rec" style="display:none;margin-top:10px;line-height:1"></div><datalist id="brl"></datalist>
 <div id="hint" style="display:none;margin-top:14px;padding:10px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;font-size:14px;color:#c2410c"></div><button onclick="run(this)">判断限行</button>
 <div class="card" id="out">填好点按钮</div>
 <p class="tip">© 2026 重庆交通大学  交通运输学院 交通设备与控制工程2602 陈文强 · 仅供参考，请以交管部门
