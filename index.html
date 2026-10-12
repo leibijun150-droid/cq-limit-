@@ -1,0 +1,263 @@
+<!--
+  重庆桥隧限行智能出行顾问
+  © 2026 重庆交通大学  交通设备与控制工程2602 重庆交通大学  交通运输学院 交通设备与控制工程2602 陈文强
+  保留所有权利
+  未经许可不得复制、修改、分发
+-->
+
+
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+ content="width=device-width,initial-scale=1">
+<title>重庆桥隧限行顾问</title>
+<style>
+body{font-family:sans-serif;
+ margin:12px;background:#f2f2f2}
+h3{font-size:18px}
+label{display:block;margin-top:8px}
+input,select{width:100%;padding:8px;
+ box-sizing:border-box;font-size:16px}
+button{width:100%;padding:12px;
+ margin-top:10px;background:#1a73e8;
+ color:#fff;border:0;border-radius:6px;
+ font-size:16px}
+.wheel{display:flex;align-items:center;
+ height:150px;background:#fff;
+ border-radius:8px;overflow:hidden;
+ border:1px solid #ddd}
+.col{flex:1;height:150px;
+ overflow-y:scroll;text-align:center;
+ scroll-snap-type:y mandatory}
+.col::-webkit-scrollbar{display:none}
+.item{height:50px;line-height:50px;
+ font-size:22px;scroll-snap-align:center}
+.pad{height:50px}
+.colon{font-size:22px;
+ font-weight:bold;padding:0 8px}
+.card{background:#fff;padding:12px;
+ border-radius:8px;margin-top:12px}
+.c{font-size:20px;font-weight:bold;
+ color:#c0392b}
+.tip{color:#888;font-size:12px}
+</style>
+</head>
+<body>
+
+<h3>重庆桥隧限行智能出行顾问</h3>
+<label>车牌</label>
+<input id="plate" value="渝A12346">
+<label>车型</label>
+<select id="vt"></select>
+<label>星期</label>
+<select id="wd"></select>
+<label>时间（上下滑动）</label>
+<div class="wheel">
+<div class="col" id="colH"></div>
+<div class="colon">:</div>
+<div class="col" id="colM"></div>
+</div>
+<input type="hidden" id="th" value="7">
+<input type="hidden" id="tm" value="30">
+<label>桥隧</label>
+<input id="rs" value="黄花园大桥">
+<button onclick="run()">判断限行</button>
+<div class="card" id="out">填好点按钮</div>
+<p class="tip">© 2026 重庆交通大学  交通运输学院 交通设备与控制工程2602 陈文强 · 仅供参考，请以交管部门
+最新公告为准。核实：023-12123</p>
+<script>
+
+var WD=["","周一","周二","周三",
+        "周四","周五","周六","周日"];
+var TAIL={"1":"16","2":"27","3":"38",
+          "4":"49","5":"50"};
+var AM=[420,540];
+var PM=[1020,1170];
+var VT=["汽油小客车","新能源小客车",
+        "外地号牌小客车","轻型货车",
+        "重型货车","巡游出租汽车",
+        "公共汽车"];
+var BR=["高家花园大桥",
+        "高家花园大桥复线桥",
+        "石门大桥","嘉华大桥",
+        "渝澳大桥","嘉陵江牛角沱大桥",
+        "黄花园大桥","千厮门大桥",
+        "朝天门大桥","东水门大桥",
+        "石板坡长江大桥",
+        "石板坡长江大桥复线桥",
+        "菜园坝大桥","鹅公岩大桥",
+        "曾家岩大桥","双碑大桥",
+        "大佛寺长江大桥","红岩村大桥",
+        "马桑溪长江大桥","李家沱大桥",
+        "李家沱长江复线桥",
+        "真武山隧道","双碑隧道",
+        "大学城隧道","中梁山隧道"];
+var FREE=["绕城高速","外环高速",
+          "轨道1号线","轨道3号线",
+          "轨道6号线","轨道环线"];
+
+function val(id){
+  return document.getElementById(id).value;
+}
+function hit(n,a){
+  for(var i=0;i<a.length;i++){
+    if(a[i].indexOf(n)>=0||
+       n.indexOf(a[i])>=0) return a[i];
+  }
+  return null;
+}
+
+function judge(p,vt,wd,mi,roads){
+  var raw=p.toUpperCase().replace(/ /g,"");
+  var ds=raw.match(/\d/g)||[];
+  var tail=ds.length?ds[ds.length-1]:"";
+  var ne=/新能源|电动|绿牌|插电|增程/
+         .test(vt);
+  if(raw.length>=8&&
+     "DF".indexOf(raw[2])>=0) ne=true;
+  var truck=/货车|卡车/.test(vt);
+  var free=/出租|巡游|网约|公交|公共汽车|巴士/
+           .test(vt);
+  var moto=/摩托/.test(vt);
+  var am=mi>=AM[0]&&mi<=AM[1];
+  var pm=mi>=PM[0]&&mi<=PM[1];
+  var peak=am?"早高峰 07:00—09:00":
+      (pm?"晚高峰 17:00—19:30":"");
+  var lim=[],unk=[];
+  for(var i=0;i<roads.length;i++){
+    var r=roads[i];
+    if(!r) continue;
+    var a=hit(r,BR);
+    if(a) lim.push(a);
+    else if(!hit(r,FREE)) unk.push(r);
+  }
+  var road=lim.join("、");
+  if(moto) return ["不限行",
+    "摩托车不属于汽车，不在"+
+    "错峰通行车辆范围内。",
+    "可正常通行。"];
+  if(truck){
+    if(peak&&lim.length) return ["限行",
+      "货车须先执行小客车错峰"+
+      "规定，另须持货车通行证。",
+      "错峰或绕行，或办货车"+
+      "通行证。"];
+    return ["需办证",
+      "货运车辆进入中心城区"+
+      "须持有效通行证。",
+      "办证：交管12123 APP、"+
+      "重庆交巡警公众号。"];
+  }
+  if(wd<1||wd>5) return ["不限行",
+    "法定节假日不限行；调休"+
+    "成工作日的周末同样不限行。",
+    "按原路线通行。"];
+  if(!peak) return ["不限行",
+    "错峰时段为工作日早高峰"+
+    " 07:00—09:00、晚高峰"+
+    " 17:00—19:30，当前不在"+
+    "时段内。",
+    "可正常通行。"];
+  if(!lim.length) return ["不限行",
+    "该通道不在错峰通行区域"+
+    "清单内，不受工作日高峰"+
+    "尾号限行限制。",
+    "可正常通行。若桥隧名字"+
+    "写错，请核对后重试。"];
+  if(ne) return ["不限行",
+    "悬挂新能源号牌车辆不受"+
+    "错峰通行限制。",
+    "可在"+peak+"正常通行 "+
+    road+"。"];
+  if(free) return ["不限行",
+    "出租车（含网约车）、"+
+    "公交客车不受错峰通行限制。",
+    "可在"+peak+"正常通行 "+
+    road+"。"];
+  var l=TAIL[wd]||"";
+  if(!tail) return ["信息不全",
+    "车牌尾号没识别出来。",
+    "请补充车牌号码。"];
+  if(l.indexOf(tail)>=0) return ["限行",
+    "错峰规则："+WD[wd]+"限行尾号 "+
+    l+"，你的尾号是 "+tail+"。"+
+    peak+"禁行 "+road+"。",
+    "错峰：07:00 前 / 09:00 后、"+
+    "17:00 前 / 19:30 后通过。"];
+  return ["不限行",
+    "错峰规则："+WD[wd]+"限行尾号 "+
+    l+"，你的尾号 "+tail+
+    " 不在其中。",
+    "可在"+peak+"正常通行 "+
+    road+"。"];
+}
+
+function fill(id,n,v){
+  var c=document.getElementById(id);
+  var h="<div class=pad></div>";
+  for(var i=0;i<n;i++){
+    var s=("0"+i).slice(-2);
+    h+="<div class=item>"+s+"</div>";
+  }
+  h+="<div class=pad></div>";
+  c.innerHTML=h;
+  c.scrollTop=v*50;
+}
+function bind(id,hid){
+  var c=document.getElementById(id);
+  c.addEventListener("scroll",function(){
+    var i=Math.round(c.scrollTop/50);
+    var a=c.querySelectorAll(".item");
+    if(i>=0&&i<a.length)
+      document.getElementById(hid).value=
+        a[i].textContent;
+  });
+}
+function save(){
+  try{
+    var k=["plate","vt","wd","th","tm","rs"];
+    for(var i=0;i<k.length;i++)
+      localStorage.setItem("cq"+k[i],
+                           val(k[i]));
+  }catch(e){}
+}
+function load(){
+  try{
+    var k=["plate","vt","wd","th","tm","rs"];
+    for(var i=0;i<k.length;i++){
+      var v=localStorage.getItem("cq"+k[i]);
+      if(v) document.getElementById(k[i]).value=v;
+    }
+  }catch(e){}
+}
+function run(){
+  var mi=parseInt(val("th"))*60+
+         parseInt(val("tm"));
+  var roads=val("rs").replace(/，/g,",")
+            .split(",");
+  var r=judge(val("plate"),val("vt"),
+              parseInt(val("wd")),mi,roads);
+  save();
+  document.getElementById("out").innerHTML=
+    "<div class='c'>结论："+r[0]+"</div>"+
+    "<p><b>依据</b><br>"+r[1]+"</p>"+
+    "<p><b>建议</b><br>"+r[2]+"</p>";
+}
+var S1=document.getElementById("vt");
+var S2=document.getElementById("wd");
+for(var i=0;i<VT.length;i++)
+  S1.innerHTML+="<option>"+VT[i]+"</option>";
+for(var i=1;i<=7;i++)
+  S2.innerHTML+="<option value="+i+">"+
+                WD[i]+"</option>";
+S2.value="1";
+load();
+bind("colH","th");
+bind("colM","tm");
+fill("colH",24,parseInt(val("th")||"7"));
+fill("colM",60,parseInt(val("tm")||"30"));
+</script>
+</body>
+</html>
