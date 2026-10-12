@@ -14,34 +14,89 @@
  content="width=device-width,initial-scale=1">
 <title>重庆桥隧限行顾问</title>
 <style>
-body{font-family:sans-serif;
- margin:12px;background:#f2f2f2}
-h3{font-size:18px}
-label{display:block;margin-top:8px}
-input,select{width:100%;padding:8px;
- box-sizing:border-box;font-size:16px}
-button{width:100%;padding:12px;
- margin-top:10px;background:#1a73e8;
- color:#fff;border:0;border-radius:6px;
- font-size:16px}
+*{box-sizing:border-box}
+body{font-family:-apple-system,
+ "PingFang SC","Microsoft YaHei",
+ sans-serif;margin:0;
+ padding:0 14px 24px;color:#1f2937;
+ background:linear-gradient(
+ 180deg,#eef3fb,#f7f9fc);
+ min-height:100vh}
+h3{margin:0 -14px 18px;
+ padding:24px 14px 26px;
+ font-size:20px;font-weight:600;
+ color:#fff;letter-spacing:.5px;
+ background:linear-gradient(
+ 135deg,#2563eb,#1d4ed8);
+ border-radius:0 0 22px 22px;
+ box-shadow:0 6px 20px
+ rgba(37,99,235,.25)}
+label{display:block;margin:14px 0 6px;
+ font-size:13px;color:#64748b;
+ font-weight:500}
+input,select{width:100%;
+ padding:12px 14px;font-size:16px;
+ color:#1f2937;background:#fff;
+ border:1.5px solid #e2e8f0;
+ border-radius:12px;outline:none;
+ transition:.2s;-webkit-appearance:none}
+input:focus,select:focus{
+ border-color:#2563eb;
+ box-shadow:0 0 0 4px
+ rgba(37,99,235,.12)}
+button{width:100%;padding:15px;
+ margin-top:20px;font-size:17px;
+ font-weight:600;color:#fff;
+ background:linear-gradient(
+ 135deg,#2563eb,#1d4ed8);
+ border:0;border-radius:14px;
+ box-shadow:0 6px 16px
+ rgba(37,99,235,.3);
+ transition:.15s}
+button:active{transform:translateY(2px);
+ box-shadow:0 2px 8px
+ rgba(37,99,235,.3)}
+button:disabled{opacity:.7;
+ transform:none}
 .wheel{display:flex;align-items:center;
- height:150px;background:#fff;
- border-radius:8px;overflow:hidden;
- border:1px solid #ddd}
+ height:150px;position:relative;
+ background:#fff;border-radius:14px;
+ border:1.5px solid #e2e8f0;
+ overflow:hidden}
+.wheel::before{content:"";
+ position:absolute;left:8px;right:8px;
+ top:50px;height:50px;z-index:1;
+ pointer-events:none;
+ background:rgba(37,99,235,.07);
+ border-radius:10px;
+ border-top:1.5px solid
+ rgba(37,99,235,.25);
+ border-bottom:1.5px solid
+ rgba(37,99,235,.25)}
 .col{flex:1;height:150px;
  overflow-y:scroll;text-align:center;
- scroll-snap-type:y mandatory}
+ scroll-snap-type:y mandatory;
+ position:relative;z-index:2}
 .col::-webkit-scrollbar{display:none}
 .item{height:50px;line-height:50px;
- font-size:22px;scroll-snap-align:center}
+ font-size:24px;font-weight:600;
+ color:#475569;
+ scroll-snap-align:center}
 .pad{height:50px}
-.colon{font-size:22px;
- font-weight:bold;padding:0 8px}
-.card{background:#fff;padding:12px;
- border-radius:8px;margin-top:12px}
-.c{font-size:20px;font-weight:bold;
- color:#c0392b}
-.tip{color:#888;font-size:12px}
+.colon{font-size:24px;font-weight:700;
+ color:#2563eb;padding:0 6px;z-index:2}
+.card{background:#fff;padding:18px;
+ border-radius:16px;margin-top:18px;
+ box-shadow:0 4px 16px
+ rgba(15,23,42,.06);
+ line-height:1.7;font-size:15px}
+.c{font-size:22px;font-weight:700;
+ color:#dc2626;margin-bottom:12px;
+ padding-bottom:10px;
+ border-bottom:1px solid #f1f5f9}
+.tip{color:#94a3b8;font-size:12px;
+ text-align:center;margin-top:20px;
+ line-height:1.6}
 </style>
 </head>
 <body>
@@ -51,8 +106,8 @@ button{width:100%;padding:12px;
 <input id="plate" value="渝A12346">
 <label>车型</label>
 <select id="vt"></select>
-<label>星期</label>
-<select id="wd"></select>
+<label>日期</label><input type="date" id="dt"><label>星期（自动）</label>
+<select id="wd" disabled></select>
 <label>时间（上下滑动）</label>
 <div class="wheel">
 <div class="col" id="colH"></div>
@@ -60,10 +115,10 @@ button{width:100%;padding:12px;
 <div class="col" id="colM"></div>
 </div>
 <input type="hidden" id="th" value="7">
-<input type="hidden" id="tm" value="30">
+<input type="hidden" id="tm" value="30"><div id="cd" style="margin-top:8px;font-size:13px;color:#64748b"></div>
 <label>桥隧</label>
-<input id="rs" value="黄花园大桥">
-<button onclick="run()">判断限行</button>
+<input id="rs" value="黄花园大桥" autocomplete="off"><div id="sug" style="display:none;margin-top:8px;line-height:1"></div><div id="rec" style="display:none;margin-top:10px;line-height:1"></div><datalist id="brl"></datalist>
+<div id="hint" style="display:none;margin-top:14px;padding:10px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;font-size:14px;color:#c2410c"></div><button onclick="run(this)">判断限行</button>
 <div class="card" id="out">填好点按钮</div>
 <p class="tip">© 2026 重庆交通大学  交通运输学院 交通设备与控制工程2602 陈文强 · 仅供参考，请以交管部门
 最新公告为准。核实：023-12123</p>
@@ -109,7 +164,7 @@ function hit(n,a){
   return null;
 }
 
-function judge(p,vt,wd,mi,roads){
+function judge(p,vt,wd,mi,roads,ho){
   var raw=p.toUpperCase().replace(/ /g,"");
   var ds=raw.match(/\d/g)||[];
   var tail=ds.length?ds[ds.length-1]:"";
@@ -150,22 +205,27 @@ function judge(p,vt,wd,mi,roads){
       "办证：交管12123 APP、"+
       "重庆交巡警公众号。"];
   }
-  if(wd<1||wd>5) return ["不限行",
-    "法定节假日不限行；调休"+
-    "成工作日的周末同样不限行。",
+  if(ho) return ["不限行",
+    "今天是法定节假日，当日"+
+    "不实施桥隧错峰通行。",
     "按原路线通行。"];
-  if(!peak) return ["不限行",
-    "错峰时段为工作日早高峰"+
-    " 07:00—09:00、晚高峰"+
-    " 17:00—19:30，当前不在"+
-    "时段内。",
-    "可正常通行。"];
+  if(wd<1||wd>5) return ["不限行",
+    "今天是周末；因法定节假"+
+    "日调休而上班的周末同样"+
+    "不实施错峰通行。",
+    "按原路线通行。"];
   if(!lim.length) return ["不限行",
     "该通道不在错峰通行区域"+
     "清单内，不受工作日高峰"+
     "尾号限行限制。",
     "可正常通行。若桥隧名字"+
     "写错，请核对后重试。"];
+  if(!peak) return ["不限行",
+    "错峰时段为工作日早高峰"+
+    " 07:00—09:00、晚高峰"+
+    " 17:00—19:30，当前不在"+
+    "时段内。",
+    "可正常通行。"];
   if(ne) return ["不限行",
     "悬挂新能源号牌车辆不受"+
     "错峰通行限制。",
@@ -217,7 +277,7 @@ function bind(id,hid){
 }
 function save(){
   try{
-    var k=["plate","vt","wd","th","tm","rs"];
+    var k=["plate","vt","rs"];
     for(var i=0;i<k.length;i++)
       localStorage.setItem("cq"+k[i],
                            val(k[i]));
@@ -225,25 +285,48 @@ function save(){
 }
 function load(){
   try{
-    var k=["plate","vt","wd","th","tm","rs"];
+    var k=["plate","vt","rs"];
     for(var i=0;i<k.length;i++){
       var v=localStorage.getItem("cq"+k[i]);
       if(v) document.getElementById(k[i]).value=v;
     }
   }catch(e){}
 }
-function run(){
-  var mi=parseInt(val("th"))*60+
-         parseInt(val("tm"));
-  var roads=val("rs").replace(/，/g,",")
-            .split(",");
-  var r=judge(val("plate"),val("vt"),
-              parseInt(val("wd")),mi,roads);
-  save();
+function run(b){
+  if(b){b.disabled=true;
+    b.textContent="判断中…";}
   document.getElementById("out").innerHTML=
-    "<div class='c'>结论："+r[0]+"</div>"+
-    "<p><b>依据</b><br>"+r[1]+"</p>"+
-    "<p><b>建议</b><br>"+r[2]+"</p>";
+    "<b>正在判断…</b>";
+  setTimeout(function(){
+    var mi=parseInt(val("th"))*60+
+           parseInt(val("tm"));
+    var roads=val("rs").replace(/，/g,",")
+              .split(",");
+    var r=judge(val("plate"),val("vt"),
+                parseInt(val("wd")),mi,roads,hoNow());
+    save();
+    try{ra(val("rs"));}catch(x){}
+    var d=new Date();
+    var bj=new Date(d.getTime()+
+        d.getTimezoneOffset()*60000+
+        8*3600000);
+    var t2=("0"+bj.getHours()).slice(-2)+":"+
+           ("0"+bj.getMinutes()).slice(-2)+":"+
+           ("0"+bj.getSeconds()).slice(-2);
+    document.getElementById("out").innerHTML=
+      "<div class='c'>结论："+r[0]+"</div>"+
+      "<p><b>依据</b><br>"+r[1]+"</p>"+
+      "<p><b>建议</b><br>"+r[2]+"</p>"+
+      "<p style='color:#999;font-size:12px'>"+
+      "本次判断 "+t2+"</p>";
+    if(b){b.disabled=false;
+      b.textContent="判断限行";}
+    try{
+      document.getElementById("out")
+        .scrollIntoView({behavior:"smooth",
+                         block:"center"});
+    }catch(e){}
+  },80);
 }
 var S1=document.getElementById("vt");
 var S2=document.getElementById("wd");
@@ -253,11 +336,161 @@ for(var i=1;i<=7;i++)
   S2.innerHTML+="<option value="+i+">"+
                 WD[i]+"</option>";
 S2.value="1";
-load();
+load(); nowInit();
 bind("colH","th");
 bind("colM","tm");
 fill("colH",24,parseInt(val("th")||"7"));
 fill("colM",60,parseInt(val("tm")||"30"));
-</script>
+
+function nowInit(){
+  try{
+    var d=new Date();
+    var bj=new Date(d.getTime()+
+        d.getTimezoneOffset()*60000+
+        8*3600000);
+    var hh=bj.getHours();
+    var mm=bj.getMinutes();
+    var w=bj.getDay();
+    if(w===0) w=7;
+    document.getElementById("th").value=
+      ("0"+hh).slice(-2);
+    document.getElementById("tm").value=
+      ("0"+mm).slice(-2);
+    document.getElementById("wd").value=w;
+    ISH=isHol();
+  }catch(e){}
+}
+
+
+var HOL=[
+"2026-01-01","2026-01-02","2026-01-03",
+"2026-02-15","2026-02-16","2026-02-17",
+"2026-02-18","2026-02-19","2026-02-20",
+"2026-02-21","2026-02-22","2026-02-23",
+"2026-04-04","2026-04-05","2026-04-06",
+"2026-05-01","2026-05-02","2026-05-03",
+"2026-05-04","2026-05-05",
+"2026-06-19","2026-06-20","2026-06-21",
+"2026-09-25","2026-09-26","2026-09-27",
+"2026-10-01","2026-10-02","2026-10-03",
+"2026-10-04","2026-10-05","2026-10-06",
+"2026-10-07"
+];
+function isHolDate(s){
+  return HOL.indexOf(s)>=0;
+}
+function wdOfDate(s){
+  try{
+    var a=s.split("-");
+    var d=new Date(a[0],a[1]-1,a[2]);
+    var w=d.getDay();
+    return (w===0)?7:w;
+  }catch(e){return 1;}
+}
+function hoNow(){
+  return isHolDate(val("dt"));
+}
+function updHint(){
+  try{
+    var h=document.getElementById("hint");
+    if(!h) return;
+    if(hoNow()){
+      h.style.display="block";
+      h.innerHTML="⚠️ 所选日期为法定"+
+        "节假日，当日不实施桥隧"+
+        "错峰通行。";
+    }else{
+      h.style.display="none";
+    }
+  }catch(e){}
+}
+function syncDay(){
+  try{
+    var e=document.getElementById("dt");
+    document.getElementById("wd").value=
+      wdOfDate(e.value);
+    updHint();
+  }catch(ex){}
+}
+(function(){
+  try{
+    var d=new Date();
+    var bj=new Date(d.getTime()+
+        d.getTimezoneOffset()*60000+
+        8*3600000);
+    var ds=bj.getFullYear()+"-"+
+      ("0"+(bj.getMonth()+1)).slice(-2)+"-"+
+      ("0"+bj.getDate()).slice(-2);
+    document.getElementById("dt").value=ds;
+    document.getElementById("th").value=
+      ("0"+bj.getHours()).slice(-2);
+    document.getElementById("tm").value=
+      ("0"+bj.getMinutes()).slice(-2);
+    syncDay();
+    document.getElementById("dt")
+      .addEventListener("change",syncDay);
+    fill("colH",24,parseInt(val("th")||"7"));
+    fill("colM",60,parseInt(val("tm")||"30"));
+  }catch(e){}
+})();
+
+(function(){
+  try{
+    var d=document.getElementById("brl");
+    for(var i=0;i<BR.length;i++)
+      d.innerHTML+="<option value='"+BR[i]+
+        "'></option>";
+  }catch(e){}
+})();
+
+function updSug(){
+  try{
+    var v=document.getElementById("rs").value.trim();
+    var box=document.getElementById("sug");
+    var h="",n=0;
+    for(var i=0;i<BR.length;i++){
+      if(v&&BR[i].indexOf(v)<0&&
+         v.indexOf(BR[i])<0) continue;
+      h+="<span onclick='pick(\""+BR[i]+"\")' "+
+         "style='display:inline-block;"+
+         "margin:6px 6px 0 0;padding:8px 14px;"+
+         "background:#eef3fb;color:#2563eb;"+
+         "border-radius:18px;font-size:14px'>"+
+         BR[i]+"</span>";
+      n++;
+      if(n>=8) break;
+    }
+    box.innerHTML=h;
+    box.style.display=h?"block":"none";
+  }catch(e){}
+}
+function pick(t){
+  document.getElementById("rs").value=t;
+  document.getElementById("sug").style.display="none";
+}
+(function(){
+  try{
+    var e=document.getElementById("rs");
+    e.addEventListener("input",updSug);
+    e.addEventListener("focus",updSug);
+  }catch(e){}
+})();
+function fm(x){
+var h=Math.floor(x/60),q=x%60;
+return h>0?h+' 小时 '+q+' 分':q+' 分钟';}
+function updCd(){try{
+var d=new Date();
+var bj=new Date(d.getTime()+
+d.getTimezoneOffset()*60000+28800000);
+var m=bj.getHours()*60+bj.getMinutes();
+var e=document.getElementById('cd'),t;
+if(m<420)t='距离早高峰还有 '+fm(420-m);
+else if(m<=540)t='现在处于早高峰，还有 '+fm(540-m)+' 结束';
+else if(m<1020)t='距离晚高峰还有 '+fm(1020-m);
+else if(m<=1170)t='现在处于晚高峰，还有 '+fm(1170-m)+' 结束';
+else t='今日高峰时段已结束';
+e.innerHTML=t;}catch(x){}}
+updCd();
+setInterval(updCd,60000);function rg(){try{var v=localStorage.getItem('cqrec')||'';return v?v.split('|'):[]}catch(x){return []}}function pk(i){try{pick(rg()[i])}catch(x){}}function rr(){try{var a=rg(),b=document.getElementById('rec');if(!a.length){b.style.display='none';return}var h='<span style=color:#94a3b8>常用：</span>';for(var i=0;i<a.length;i++)h+='<span onclick=pk('+i+')>'+a[i]+'</span>';b.innerHTML=h;b.style.display='block'}catch(x){}}function ra(v){try{v=(v||'').split(',')[0].trim();if(!v)return;var a=rg(),o=[v];for(var i=0;i<a.length;i++)if(a[i]!==v)o.push(a[i]);o=o.slice(0,3);localStorage.setItem('cqrec',o.join('|'));rr()}catch(x){}}var S='#rec span{display:inline-block;margin:6px 6px 0 0;padding:8px 14px;background:#eef3fb;color:#2563eb;border-radius:18px;font-size:14px;cursor:pointer}';var E=document.createElement('style');E.innerHTML=S;document.head.appendChild(E);rr();</script>
 </body>
 </html>
