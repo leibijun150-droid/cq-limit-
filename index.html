@@ -102,7 +102,7 @@ button:disabled{opacity:.7;
 <body>
 
 <h3>重庆桥隧限行智能出行顾问</h3>
-<label>车牌</label><input id="plate" value="" placeholder="如:渝A8F2K6"><label>车型</label>
+<label>车牌</label><div style="position:relative"><input id="plate" value="" placeholder="如:渝A8F2K6" style="padding-right:38px"><a onclick=cl(0) style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#b8c2d1;font-size:20px;line-height:1;cursor:pointer">&#215;</a></div><label>车型</label>
 <select id="vt"></select>
 <label>日期</label><input type="date" id="dt"><label>星期（自动）</label>
 <select id="wd" disabled></select>
@@ -114,8 +114,7 @@ button:disabled{opacity:.7;
 </div>
 <input type="hidden" id="th" value="7">
 <input type="hidden" id="tm" value="30"><div id="cd" style="margin-top:8px;font-size:13px;color:#64748b"></div>
-<label>桥隧</label>
-<input id="rs" value="" placeholder="如:黄花园大桥" autocomplete="off"><div id="sug" style="display:none;margin-top:8px;line-height:1"></div><div id="rec" style="display:none;margin-top:10px;line-height:1"></div><datalist id="brl"></datalist>
+<label>桥隧</label><div style="position:relative"><input id="rs" value="" placeholder="如:黄花园大桥" autocomplete="off" style="padding-right:38px"><a onclick=cl(1) style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#b8c2d1;font-size:20px;line-height:1;cursor:pointer">&#215;</a></div><div id="rec" style="display:none;margin-top:10px;line-height:1"></div><datalist id="brl"></datalist>
 <div id="hint" style="display:none;margin-top:14px;padding:10px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;font-size:14px;color:#c2410c"></div><button onclick="run(this)">判断限行</button>
 <div class="card" id="out">填好点按钮</div>
 <p class="tip">© 2026 重庆交通大学  交通运输学院 交通设备与控制工程2602 陈文强 · 仅供参考，请以交管部门
@@ -435,8 +434,8 @@ function syncDay(){
 (function(){
   try{
     var d=document.getElementById("brl");
-    for(var i=0;i<BR.length;i++)
-      d.innerHTML+="<option value='"+BR[i]+
+    for(var i=0;i<AB.length;i++)
+      d.innerHTML+="<option value='"+AB[i]+
         "'></option>";
   }catch(e){}
 })();
@@ -446,15 +445,15 @@ function updSug(){
     var v=document.getElementById("rs").value.trim();
     var box=document.getElementById("sug");
     var h="",n=0;
-    for(var i=0;i<BR.length;i++){
-      if(v&&BR[i].indexOf(v)<0&&
-         v.indexOf(BR[i])<0) continue;
-      h+="<span onclick='pick(\""+BR[i]+"\")' "+
+    for(var i=0;i<AB.length;i++){
+      if(v&&AB[i].indexOf(v)<0&&
+         v.indexOf(AB[i])<0) continue;
+      h+="<span onclick='pick(\""+AB[i]+"\")' "+
          "style='display:inline-block;"+
          "margin:6px 6px 0 0;padding:8px 14px;"+
          "background:#eef3fb;color:#2563eb;"+
          "border-radius:18px;font-size:14px'>"+
-         BR[i]+"</span>";
+         AB[i]+"</span>";
       n++;
       if(n>=8) break;
     }
@@ -489,6 +488,6 @@ else if(m<=1170)t='现在处于晚高峰，还有 '+fm(1170-m)+' 结束';
 else t='今日高峰时段已结束';
 e.innerHTML=t;}catch(x){}}
 updCd();
-setInterval(updCd,60000);function rg(){try{var v=localStorage.getItem('cqrec')||'';return v?v.split('|'):[]}catch(x){return []}}function pk(i){try{pick(rg()[i])}catch(x){}}function rr(){try{var a=rg(),b=document.getElementById('rec');if(!a.length){b.style.display='none';return}var h='<span style=color:#94a3b8>常用：</span>';for(var i=0;i<a.length;i++)h+='<span onclick=pk('+i+')>'+a[i]+'</span>';b.innerHTML=h;b.style.display='block'}catch(x){}}function ra(v){try{v=(v||'').split(',')[0].trim();if(!v)return;var a=rg(),o=[v];for(var i=0;i<a.length;i++)if(a[i]!==v)o.push(a[i]);o=o.slice(0,3);localStorage.setItem('cqrec',o.join('|'));rr()}catch(x){}}var S='#rec span{display:inline-block;margin:6px 6px 0 0;padding:8px 14px;background:#eef3fb;color:#2563eb;border-radius:18px;font-size:14px;cursor:pointer}';var E=document.createElement('style');E.innerHTML=S;document.head.appendChild(E);rr();</script>
+setInterval(updCd,60000);function rg(){try{var v=localStorage.getItem('cqrec')||'';return v?v.split('|'):[]}catch(x){return []}}function pk(i){try{pick(rg()[i])}catch(x){}}function rr(){try{var a=rg(),b=document.getElementById('rec');if(!a.length){b.style.display='none';return}var h='<span style=color:#94a3b8>常用：</span>';for(var i=0;i<a.length;i++)h+='<span onclick=pk('+i+')>'+a[i]+'</span>';b.innerHTML=h;b.style.display='block'}catch(x){}}function ra(v){try{v=(v||'').split(',')[0].trim();if(!v)return;var a=rg(),o=[v];for(var i=0;i<a.length;i++)if(a[i]!==v)o.push(a[i]);o=o.slice(0,3);localStorage.setItem('cqrec',o.join('|'));rr()}catch(x){}}var S='#rec span{display:inline-block;margin:6px 6px 0 0;padding:8px 14px;background:#eef3fb;color:#2563eb;border-radius:18px;font-size:14px;cursor:pointer}';var E=document.createElement('style');E.innerHTML=S;document.head.appendChild(E);rr();var NF=['铜罐驿长江大桥','小南海长江大桥','地维长江大桥','白沙沱长江大桥','新白沙沱长江大桥','鱼洞长江大桥','白居寺长江大桥','黄桷坪长江大桥','鹅公岩轨道专用长江大桥','南纪门长江大桥','寸滩长江大桥','黄桷沱长江大桥','郭家沱长江大桥','广阳岛大桥','广阳湾大桥','鱼嘴两江大桥','明月峡长江大桥','木洞长江大桥','太洪长江大桥','麻柳嘴长江大桥','礼嘉嘉陵江大桥','马鞍石嘉陵江大桥','蔡家嘉陵江大桥','水土嘉陵江大桥','高家花园嘉陵江轨道大桥','渝澳嘉陵江大桥轨道专用桥','嘉华轨道专用桥','渝怀铁路井口嘉陵江大桥','兰渝铁路新井口嘉陵江大桥','土主隧道','华岩隧道','龙洲湾隧道','歇马隧道','金凤隧道','陶家隧道','科学城隧道','白市驿隧道','磨心坡隧道','龙兴隧道','江南隧道','新燕尾山隧道','铁山坪复线隧道','鹿角隧道','郭家沱隧道'];var AB=BR.concat(NF);function cl(n){try{var a=['plate','rs'],d=a[n];document.getElementById(d).value='';localStorage.removeItem('cq'+d);if(n==1){var g=document.getElementById('sug');if(g){g.style.display='none';g.innerHTML=''}}}catch(x){}}</script>
 </body>
 </html>
